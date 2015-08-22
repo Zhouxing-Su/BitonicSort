@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 
 
 // see [ http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2 ]
@@ -26,14 +27,6 @@ class BitonicSorter
 public:
     BitonicSorter( List &list, int len ) : list( list ), listLen( len ) {}
 
-    void print() const
-    {
-        for (int i = 0; i < listLen; ++i) {
-            std::cout << list[i] << ',';
-        }
-        std::cout << std::endl;
-    }
-
     // if (ascend == true), the list will be sorted in ascending order
     void sort( bool ascend = true )
     {
@@ -43,27 +36,46 @@ public:
     void sort_NonRecursive( bool ascend = true )
     {
         int i, j, k;
-        for (k = 2; k <= listLen; k = 2 * k) {
-            for (j = k >> 1; j > 0; j = j >> 1) {
+        for (k = 2; k <= listLen; k <<= 1) {
+            for (j = k >> 1; j > 0; j >>= 1) {
                 for (i = 0; i < listLen; ++i) {
-                    int ixj = i^j;
-                    if ((ixj) > i) {
-                        if ((((i&k) == 0) == ascend) && (list[i] > list[ixj])) {
-                            std::swap( list[i], list[ixj] );
-                        }
-                        if ((((i&k) != 0) == ascend) && (list[i] < list[ixj])) {
-                            std::swap( list[i], list[ixj] );
+                    int ixj = i ^ j;
+                    if (ixj > i) {
+                        if ((i & k) == 0) {
+                            if (list[i] > list[ixj]) {
+                                std::swap( list[i], list[ixj] );
+                            }
+                        } else {    // ((i & k) != 0)
+                            if (list[i] < list[ixj]) {
+                                std::swap( list[i], list[ixj] );
+                            }
                         }
                     }
                 }
             }
         }
+
+        if (!ascend) {
+            for (int l = listLen / 2 - 1, r = listLen / 2; l >= 0; --l, ++r) {
+                std::swap( list[l], list[r] );
+            }
+        }
+    }
+
+    void print() const
+    {
+        for (int i = 0; i < listLen; ++i) {
+            std::cout << list[i] << ',';
+        }
+        std::cout << std::endl;
     }
 
 private:
     void bitonicSort( bool ascend, int offset, int len )
     {
         if (len <= 1) { return; }
+
+        printOperation( "sort", ascend, offset, len );
 
         int halfLen = len / 2;
         bitonicSort( !ascend, offset, halfLen );
@@ -76,6 +88,8 @@ private:
     {
         if (len <= 1) { return; }
 
+        printOperation( "merge", ascend, offset, len );
+
         int halfLen = GreatestPowerOf2LessThan( len );
         int left = offset;
         int right = offset + halfLen;
@@ -84,6 +98,11 @@ private:
         }
         bitonicMerge( ascend, offset, halfLen );
         bitonicMerge( ascend, offset + halfLen, len - halfLen );
+    }
+
+    static void printOperation( std::string operation, bool ascend, int offset, int len )
+    {
+        std::cout << operation << " " << (ascend ? "up" : "down") << "[" << offset << ", " << offset + len << ")" << std::endl;
     }
 
     List &list;
