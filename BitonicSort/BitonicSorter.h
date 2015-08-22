@@ -1,13 +1,14 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 
 // see [ http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2 ]
 // example [
-//  cout << GreatestPowerOf2LessThan( 3 ) << GreatestPowerOf2LessThan( 4 ) << GreatestPowerOf2LessThan( 5 ) << endl;
+//  cout << LeastPowerOf2NotLessThan( 3 ) << LeastPowerOf2NotLessThan( 4 ) << LeastPowerOf2NotLessThan( 5 ) << endl;
 // ] output [ 448 ]
-int GreatestPowerOf2LessThan( int n )
+int LeastPowerOf2NotLessThan( int n )
 {
     --n;
     n |= n >> 1;
@@ -15,9 +16,50 @@ int GreatestPowerOf2LessThan( int n )
     n |= n >> 4;
     n |= n >> 8;
     n |= n >> 16;
-    return (n + 1) >> 1;
+    return (n + 1);
+}
+int GreatestPowerOf2LessThan( int n )
+{
+    return LeastPowerOf2NotLessThan( n ) >> 1;
 }
 
+template <typename T>
+static void bitonicSort_Ascend( std::vector<T> &vec, const T &max )
+{
+    int originLen = vec.size();
+    int listLen = LeastPowerOf2NotLessThan( originLen );
+    vec.resize( listLen, max );
+
+    int i, j, k;
+    // k selects the bit position that determines whether the pairs of 
+    // elements are to be exchanged into ascending or descending order.
+    // length of sort interval get doubled every iteration
+    // (because sort recursion is post-ordered).
+    for (k = 2; k <= listLen; k <<= 1) {
+        // j corresponds to the distance apart the elements are that 
+        // are to be compared and conditionally exchanged.
+        // length of merge interval get halved every iteration
+        // (because merge recursion is pre-ordered).
+        for (j = k >> 1; j > 0; j >>= 1) {
+            for (i = 0; i < listLen; ++i) {
+                int ixj = i ^ j;
+                if (i < ixj) {
+                    if ((i & k) != 0) {
+                        if (vec[i] < vec[ixj]) {
+                            std::swap( vec[i], vec[ixj] );
+                        }
+                    } else {    // ((i & k) == 0)
+                        if (vec[i] > vec[ixj]) {
+                            std::swap( vec[i], vec[ixj] );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    vec.resize( originLen );
+}
 
 // type of items in List must be Item.
 // there must be operator[] in List.
@@ -33,35 +75,6 @@ public:
         bitonicSort( ascend, 0, listLen );
     }
 
-    void sort_NonRecursive( bool ascend = true )
-    {
-        int i, j, k;
-        for (k = 2; k <= listLen; k <<= 1) {
-            for (j = k >> 1; j > 0; j >>= 1) {
-                for (i = 0; i < listLen; ++i) {
-                    int ixj = i ^ j;
-                    if (ixj > i) {
-                        if ((i & k) == 0) {
-                            if (list[i] > list[ixj]) {
-                                std::swap( list[i], list[ixj] );
-                            }
-                        } else {    // ((i & k) != 0)
-                            if (list[i] < list[ixj]) {
-                                std::swap( list[i], list[ixj] );
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!ascend) {
-            for (int l = listLen / 2 - 1, r = listLen / 2; l >= 0; --l, ++r) {
-                std::swap( list[l], list[r] );
-            }
-        }
-    }
-
     void print() const
     {
         for (int i = 0; i < listLen; ++i) {
@@ -75,7 +88,7 @@ private:
     {
         if (len <= 1) { return; }
 
-        printOperation( "sort", ascend, offset, len );
+        //printOperation( "sort", ascend, offset, len );
 
         int halfLen = len / 2;
         bitonicSort( !ascend, offset, halfLen );
@@ -88,7 +101,7 @@ private:
     {
         if (len <= 1) { return; }
 
-        printOperation( "merge", ascend, offset, len );
+        //printOperation( "merge", ascend, offset, len );
 
         int halfLen = GreatestPowerOf2LessThan( len );
         int left = offset;
