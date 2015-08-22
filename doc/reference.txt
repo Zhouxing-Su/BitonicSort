@@ -1,0 +1,4 @@
+http://www.iti.fh-flensburg.de/lang/algorithmen/sortieren/bitonic/bitonicen.htm
+http://www.iti.fh-flensburg.de/lang/algorithmen/sortieren/bitonic/oddn.htm
+http://v.youku.com/v_show/id_XNjIwNTEzMTA0.html
+http://www.tools-of-computing.com/tc/CS/Sorts/bitonic_sort.htm

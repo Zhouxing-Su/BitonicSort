@@ -35,9 +35,29 @@ public:
     }
 
     // if (ascend == true), the list will be sorted in ascending order
-    void sort( bool ascend )
+    void sort( bool ascend = true )
     {
         bitonicSort( ascend, 0, listLen );
+    }
+
+    void sort_NonRecursive( bool ascend = true )
+    {
+        int i, j, k;
+        for (k = 2; k <= listLen; k = 2 * k) {
+            for (j = k >> 1; j > 0; j = j >> 1) {
+                for (i = 0; i < listLen; ++i) {
+                    int ixj = i^j;
+                    if ((ixj) > i) {
+                        if ((((i&k) == 0) == ascend) && (list[i] > list[ixj])) {
+                            std::swap( list[i], list[ixj] );
+                        }
+                        if ((((i&k) != 0) == ascend) && (list[i] < list[ixj])) {
+                            std::swap( list[i], list[ixj] );
+                        }
+                    }
+                }
+            }
+        }
     }
 
 private:
@@ -60,7 +80,7 @@ private:
         int left = offset;
         int right = offset + halfLen;
         for (int i = halfLen; i < len; ++i, ++left, ++right) {
-            if ((list[left] > list[right]) == ascend) { swap( list[left], list[right] ); }
+            if ((list[left] > list[right]) == ascend) { std::swap( list[left], list[right] ); }
         }
         bitonicMerge( ascend, offset, halfLen );
         bitonicMerge( ascend, offset + halfLen, len - halfLen );
