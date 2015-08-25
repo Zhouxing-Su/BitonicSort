@@ -2,6 +2,7 @@
 #include <chrono>
 
 #include "BitonicSort.h"
+#include "test.h"
 
 
 using namespace std;
