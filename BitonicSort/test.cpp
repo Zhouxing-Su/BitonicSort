@@ -19,7 +19,7 @@ extern const vector<string> ErrorMsg = {
 void generateInstance( float* data, int* segID, int* segStart, int len, int segNum )
 {
     random_device rd;
-    mt19937 randEngine( rd() );
+    mt19937 randEngine( 0 );
 
     uniform_real_distribution<float> valueDist( 0, 1 );
     for (int i = 0; i < len; ++i) {
@@ -64,10 +64,10 @@ int check( float* data, int* segID, float* oldData, int* oldSegID, int len )
     vector<float> v;
     int currentSeg = 0;
     for (int i = 0, j; i < len; i = j, ++currentSeg) {
-        for (j = i; oldSegID[j] == currentSeg; ++j) {
+        for (j = i; (j < len) && (oldSegID[j] == currentSeg); ++j) {
             v.push_back( oldData[j] );
         }
-        for (j = i; segID[j] == currentSeg; ++j) {
+        for (j = i; (j < len) && (segID[j] == currentSeg); ++j) {
             // make sure all items in each segments are there
             auto iter = find( v.begin(), v.end(), data[j] );
             if (iter == v.end()) { return 2; }

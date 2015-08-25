@@ -1,3 +1,12 @@
+#include <stdlib.h>
+#include <float.h>
+#include <string.h>
+
+
+//#define NON_RECURSIVE
+//#define NON_RECURSIVE_IN_PLACE_SORT
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
